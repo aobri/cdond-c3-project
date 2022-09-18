@@ -3,8 +3,23 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
 
+
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail 
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+
 jobs:
 
+########################################################################## CI
   build-backend:
     docker:
       - image: cimg/node:13.8.0
@@ -104,19 +119,63 @@ jobs:
           event: fail
           mentions: '@aobri'
           template: basic_fail_1
+
+
+########################################################################## CD
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli:latest
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+                --template-file .circleci/files/backend.yml \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                --tags project=udapeople
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+                --template-file .circleci/files/frontend.yml \
+                --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                --tags project=udapeople
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+               --query 'Reservations[*].Instances[*].PublicIpAddress' \
+               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \ 
+               --output text >> .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-enironment
+
     
 workflows:
   default:
     jobs:
-      - build-backend
-      - build-frontend
-      - test-backend:
-          requires: [build-backend]
-      - test-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          context: Slack
-          requires: [build-backend]
-      - scan-frontend:
-          context: Slack
-          requires: [build-frontend]
+      # - build-backend
+      # - build-frontend
+      # - test-backend:
+      #     requires: [build-backend]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     context: Slack
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     context: Slack
+      #     requires: [build-frontend]
+      - deploy-infrastructure
+          # requires: [scan-frontend, scan-backend]
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
