@@ -172,19 +172,19 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["52:45:0a:88:7d:1e:8b:e3:ec:05:8a:1c:6b:0d:6f:9a"]
+          fingerprints: ["cc:76:25:c1:4e:2d:e7:13:d3:94:8b:71:26:0a:ee:7c"]
       - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible
+      - aws-cli/install
+      - aws-cli/setup
       - attach_workspace:
           at: .
       - run:
           name: Configure backend server
           command: |
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
-      - aws-cli/install
-      - aws-cli/setup
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment   
 
     
