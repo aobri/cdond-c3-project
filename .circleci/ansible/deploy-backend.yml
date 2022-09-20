@@ -1,7 +1,7 @@
 ---
 
-- name: "configuration play." 
-  hosts: web
+- name: "EC2 ubuntu server backend deployment play." 
+  hosts: backend-servers
   user: ubuntu
   gather_facts: false
   vars:

@@ -25,14 +25,14 @@
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
   pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
+    - name: "Wait 600 seconds for target connection to become reachable/usable."
       wait_for_connection:
         connect_timeout: 5
         delay: 0
         sleep: 1
         timeout: 600 
 
-    - name: "install python3 for Ansible."
+    - name: "Install python3 for Ansible."
       become: true
       changed_when: false
       raw: (test -e /usr/bin/python3) || (sudo apt-get -y update && apt-get install -y python3)
