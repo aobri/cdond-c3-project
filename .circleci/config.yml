@@ -235,9 +235,9 @@ jobs:
       - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
-      - run:
-          name: 'Install dependencies: Python3 & Ansible'
-          command: yum install -y python3 ansible 
+      # - run:
+      #     name: 'Install dependencies: Python3 & Ansible'
+      #     command: yum install -y python3 ansible 
       - run:
           name: 'Install dependencies: nodejs 16 & npm'
           command: |
@@ -260,7 +260,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - revert-migrations
       - destroy-environment
@@ -274,15 +274,16 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["cc:76:25:c1:4e:2d:e7:13:d3:94:8b:71:26:0a:ee:7c"]
       - run: apk add --update tar gzip
+      - aws-cli/setup
       - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
           command: |
+            apk update && apk upgrade
             apk add --update ansible
             apk add --update nodejs=16.17.0-r0
             apk add --update npm
-      - aws-cli/setup
       - run:
           name: Deploy backend
           command: |
