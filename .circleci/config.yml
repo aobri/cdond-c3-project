@@ -5,6 +5,7 @@ orbs:
   slack: circleci/slack@4.10.1
   aws-cli: circleci/aws-cli@3.1.3
 
+#${CIRCLE_WORKFLOW_ID:0:7}
 
 ###################################################################################################
 commands:
@@ -16,8 +17,8 @@ commands:
           name: Destroy environments
           when: on_fail 
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend-6fb0e92
+            aws cloudformation delete-stack --stack-name udapeople-frontend-6fb0e92
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -27,7 +28,7 @@ commands:
           when: on_fail 
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            SUCCESS=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_6fb0e92)
             if(( $SUCCESS==1 )); 
             then
              cd ~/project/backend
@@ -154,16 +155,16 @@ jobs:
           command: |
             aws cloudformation deploy \
                 --template-file .circleci/files/backend.yml \
-                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                --stack-name "udapeople-backend-6fb0e92" \
+                --parameter-overrides ID="6fb0e92"  \
                 --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
                 --template-file .circleci/files/frontend.yml \
-                --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+                --stack-name "udapeople-frontend-6fb0e92" \
+                --parameter-overrides ID="6fb0e92"  \
                 --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
@@ -171,7 +172,7 @@ jobs:
             echo "[backend-servers]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
-               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+               --filters "Name=tag:Name,Values=backend-6fb0e92" \
                --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -220,9 +221,9 @@ jobs:
           command: |   
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
-                curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_6fb0e92  -d '1'
               else
-                curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
+                curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/migration_6fb0e92  -d '0'
               fi
       # - revert-migrations   
 
@@ -248,7 +249,7 @@ jobs:
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
-               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+               --filters "Name=tag:Name,Values=backend-6fb0e92" \
                --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
@@ -260,8 +261,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            # tar -czvf artifact-"6fb0e92".tar.gz dist
+            aws s3 cp dist s3://udapeople-6fb0e92 --recursive
       - revert-migrations
       # - destroy-environment
 
@@ -292,10 +293,8 @@ jobs:
             npm run build
             cd ..
             # Zip the directory
-            ls -al
             tar -C backend -czvf artifact.tar.gz .
             ls -al
-            ls backend
             cd .circleci/ansible
             ls -al
             echo "Contents  of the inventory.txt file is -------"
