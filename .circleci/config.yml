@@ -234,6 +234,22 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip curl
+      
+      # temp stuff
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[backend-servers]" > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+               --query 'Reservations[*].Instances[*].PublicIpAddress' \
+               --filters "Name=tag:Name,Values=backend-6fb0e92" \
+               --output text >> .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+
+
       - attach_workspace:
           at: ~/
       # - run:
