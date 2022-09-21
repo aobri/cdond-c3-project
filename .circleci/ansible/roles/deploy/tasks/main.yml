@@ -1,4 +1,10 @@
 ---
+
+- name: "Check env is set"
+  shell: | 
+    echo $PATH 
+    echo $TYPEORM_HOST
+    
 - name: "Create backend web app directory"
   file:
     path: ~/udapeople-backend
@@ -14,6 +20,11 @@
     src: "~/project/artifact.tar.gz"
     dest: "~/udapeople-backend/"
 
+- name: "Check env is set"
+  shell: | 
+    echo $PATH 
+    echo $TYPEORM_HOST
+    
 - name: "Execute backend"
   shell: |
     pwd
