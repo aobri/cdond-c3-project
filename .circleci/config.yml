@@ -213,7 +213,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:16.17
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - attach_workspace:
@@ -224,8 +224,9 @@ jobs:
             cd backend 
             cat .env
             npm install
+            npm run build
             # Run and save the migration output
-            npm run migrations:revert
+            # npm run migrations:revert
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
@@ -254,9 +255,9 @@ jobs:
       #     name: 'Install dependencies: Python3 & Ansible'
       #     command: yum install -y python3 ansible
       - run:
-          name: "Install dependencies: nodejs 16 & npm"
+          name: "Install dependencies: nodejs 14 & npm"
           command: |
-            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+            curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
             yum install -y nodejs
       - run:
           name: Get backend URL
