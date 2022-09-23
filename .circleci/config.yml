@@ -179,13 +179,13 @@ jobs:
       - image: python:3.7-alpine
     steps:
       - checkout
+      - aws-cli/setup
       - add_ssh_keys:
           fingerprints: ["cc:76:25:c1:4e:2d:e7:13:d3:94:8b:71:26:0a:ee:7c"]
       - run:
           name: Install dependencies
           command: |
             apk add --update tar gzip ansible
-      - aws-cli/setup
       - attach_workspace:
           at: ~/
       - run:
@@ -288,10 +288,10 @@ jobs:
       - image: python:3.7-alpine
     steps:
       - checkout
+      - aws-cli/setup
       - add_ssh_keys:
           fingerprints: ["cc:76:25:c1:4e:2d:e7:13:d3:94:8b:71:26:0a:ee:7c"]
       - run: apk add --update tar gzip curl
-      - aws-cli/setup
       - attach_workspace:
           at: ~/
       - run:
@@ -321,19 +321,18 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:latest
+      - image: cimg/node:13.8.0
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: Install dependencies
           command: apk add --update curl
-      # - run:
-      #     name: Get backend url
-      #     command: |
-      #       # your code here
+        
       - run:
           name: Backend smoke test.
           command: |
+              sleep 60
               # Fetch and prepare the BACKEND_IP env var
               # export API_URL="http://${BACKEND_IP}:3030"
               API_URL=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7})
@@ -356,8 +355,8 @@ jobs:
               else
                 return 1
               fi
-      # - revert-migrations
-      # - destroy-environment
+      - revert-migrations
+      - destroy-environment
 
 
 
