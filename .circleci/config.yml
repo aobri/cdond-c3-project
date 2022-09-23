@@ -327,14 +327,12 @@ jobs:
       - aws-cli/setup
       - run:
           name: Install dependencies
-          command: apk add --update curl
-        
+          command: apt-get install curl
       - run:
           name: Backend smoke test.
           command: |
               sleep 60
               # Fetch and prepare the BACKEND_IP env var
-              # export API_URL="http://${BACKEND_IP}:3030"
               API_URL=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7})
               echo "${API_URL}"
               if curl "${API_URL}/api/status" | grep "ok"
