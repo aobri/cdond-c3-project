@@ -266,7 +266,9 @@ jobs:
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --output text)
+            # curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/BACKEND_IP_${CIRCLE_WORKFLOW_ID:0:7}  -d "$BACKEND_IP"
             export API_URL="http://${BACKEND_IP}:3030"
+            curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7}  -d "$API_URL"
             echo "API_URL = ${API_URL}"
             echo API_URL="${API_URL}" >> frontend/.env
             cat frontend/.env
@@ -315,6 +317,49 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - revert-migrations
       - destroy-environment
+
+
+  smoke-test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: apk add --update curl
+      # - run:
+      #     name: Get backend url
+      #     command: |
+      #       # your code here
+      - run:
+          name: Backend smoke test.
+          command: |
+              # Fetch and prepare the BACKEND_IP env var
+              # export API_URL="http://${BACKEND_IP}:3030"
+              API_URL=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7})
+              echo "${API_URL}"
+              if curl "${API_URL}/api/status" | grep "ok"
+              then
+                  return 0
+              else
+                  return 1
+              fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+              echo ${URL} 
+              if curl -s ${URL} | grep "Welcome"
+              then
+                  # Change this to 0 after the job fails
+                return 1
+              else
+                return 1
+              fi
+      # - revert-migrations
+      # - destroy-environment
+
+
 
 ###################################################################################################
 workflows:
