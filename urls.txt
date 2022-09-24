@@ -1,5 +1,5 @@
 [URL01]: https://github.com/aobri/cdond-c3-project
-[URL02]: http://udapeople-97ad87d.s3-website-us-west-2.amazonaws.com
-[URL03]: d2w0gbck9vhmwh.cloudfront.net 
-[URL04]: http://34.209.101.55:3030/api/status
-[URL05]: 
+[URL02]: http://udapeople-ca4c36d.s3-website-us-west-2.amazonaws.com
+[URL03]: http://d2w0gbck9vhmwh.cloudfront.net
+[URL04]: http://35.92.126.253:3030/api/status
+[URL05]: http://ec2-35-161-198-166.us-west-2.compute.amazonaws.com:9090/targets
