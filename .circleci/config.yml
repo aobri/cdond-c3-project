@@ -266,7 +266,6 @@ jobs:
                --query 'Reservations[*].Instances[*].PublicIpAddress' \
                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --output text)
-            # curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/BACKEND_IP_${CIRCLE_WORKFLOW_ID:0:7}  -d "$BACKEND_IP"
             export API_URL="http://${BACKEND_IP}:3030"
             curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7}  -d "$API_URL"
             echo "API_URL = ${API_URL}"
@@ -374,7 +373,8 @@ jobs:
                     --no-paginate --output text)
             echo "Old WorkflowID: ${OldWorkflowID}"
             echo "Current WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}"
-            echo 'export OldWorkflowID="$OldWorkflowID"' >> "$BASH_ENV"
+            # echo 'export OldWorkflowID="$OldWorkflowID"' >> "$BASH_ENV"
+            curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/OLD_WORKFLOW_ID  -d "${OldWorkflowID}"
       - run:
           name: Update cloudfront distribution (promote production)
           command: |
@@ -400,6 +400,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            OldWorkflowID=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/OLD_WORKFLOW_ID)
             echo "Old WorkflowID: ${OldWorkflowID}"
             echo "Current WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}"
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
