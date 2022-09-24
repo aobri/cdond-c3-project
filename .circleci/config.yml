@@ -327,7 +327,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-              sleep 60
+              sleep 30
               # Fetch and prepare the BACKEND_IP env var
               API_URL=$(curl https://kvdb.io/KP2ekT8yQqUC1LhjnCpTpn/API_URL_${CIRCLE_WORKFLOW_ID:0:7})
               echo "${API_URL}"
@@ -383,6 +383,8 @@ jobs:
             --stack-name InitialStack \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
+            sleep 5
+            aws cloudfront create-invalidation --distribution-id EV06Y68SG52MO --paths "/*"
       - destroy-environment
       - revert-migrations
 
